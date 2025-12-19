@@ -64,9 +64,26 @@
 <div class="panel" id="settingsPanel">
   <button onclick="editSecret()">✏️ Edit Secret</button>
   <button onclick="translateSecret()">🌍 Translate Secret</button>
+  <button onclick="showVisitors()">👁 Visitors</button>
   <button onclick="closeSettings()">❌ Close</button>
 </div><script>
   const PASSWORD = "CrimsonThorn";
+
+  // 🌐 VISITOR COUNTER (GLOBAL, NO BACKEND)
+  const COUNTER_NAMESPACE = 'supraman-secret-web';
+  const COUNTER_KEY = 'visits';
+
+  fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+
+  function showVisitors() {
+    if(!askPassword()) return;
+    fetch(`https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`)
+      .then(res => res.json())
+      .then(data => {
+        alert('Total visitors: ' + data.value);
+      })
+      .catch(() => alert('Could not load visitor count'));
+  }
   const STORAGE_KEY = 'secretText';
 
   const DEFAULT_SECRET = `1. I know how silence changes when a truth is hidden, and how people laugh louder to cover it.
