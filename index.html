@@ -1,187 +1,175 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secret Web</title>  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      height: 100vh;
-      background: #fffdf0;
-      color: #111;
-      font-family: 'Courier New', monospace;
-      user-select: none;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
+<meta charset="UTF-8">
+<title>Secret Page</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    header {
-      width: 100%;
-      padding-bottom: 10px;
-      font-weight: bold;
-      font-size: 1.2rem;
-      border-bottom: 2px solid #000;
-      margin-bottom: 20px;
-    }
+<style>
+  body {
+    margin: 0;
+    font-family: monospace;
+    background: #f7f4ee;
+    color: #111;
+  }
 
-    #secret {
-      font-size: 1rem;
-      line-height: 1.5rem;
-      white-space: pre-wrap;
-      max-width: 90%;
-      margin-left: 20px;
-    }
+  header {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    background: #ddd;
+  }
 
-    button {
-      margin-top: 20px;
-      padding: 6px 12px;
-      background: #111;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-family: monospace;
-    }
+  #container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-left: 4px solid #888;
+  }
 
-    button:active { opacity: 0.8; }
+  #secret {
+    white-space: pre-wrap;
+    text-align: left;
+    line-height: 1.8;
+    user-select: none;
+  }
 
-    .panel {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #f5f5f5;
-      border: 1px solid #111;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      z-index: 10;
-    }
-  </style></head>
-<body><header>Made by SUPRAMAN (HASNAAT)</header><div id="secret">Loading…</div><button onclick="openSettings()">⚙ Settings</button>
+  button {
+    padding: 8px 12px;
+    margin: 5px;
+    font-size: 14px;
+  }
+
+  #settingsBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .panel {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    background: #fff;
+    border: 1px solid #000;
+    padding: 10px;
+    display: none;
+  }
+</style>
+</head>
+
+<body>
+
+<header>Made by SUPRAMAN (HASNAAT)</header>
+
+<div id="container">
+  <div id="secret"></div>
+</div>
+
+<button id="settingsBtn" onclick="openSettings()">⚙️ Settings</button>
 
 <div class="panel" id="settingsPanel">
-  <button onclick="editSecret()">✏️ Edit Secret</button>
-  <button onclick="translateSecret()">🌍 Translate Secret</button>
-  <button onclick="showVisitors()">👁 Visitors</button>
+  <button onclick="editSecret()">✏️ Edit Secret</button><br>
+  <button onclick="translateSecret()">🌍 Translate</button><br>
+  <button onclick="showVisitors()">👁 Visitors</button><br>
   <button onclick="closeSettings()">❌ Close</button>
-</div><script>
-  const PASSWORD = "CrimsonThorn";
+</div>
 
-  // 🌐 VISITOR COUNTER (GLOBAL, NO BACKEND)
-  const COUNTER_NAMESPACE = 'supraman-secret-web';
-  const COUNTER_KEY = 'visits';
+<script>
+/* ================= PASSWORD ================= */
+const PASSWORD = "CrimsonThorn";
 
-  fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+/* ================= SECRET TEXT ================= */
+let secretText = `
+1. I have observed many things quietly over time.
+2. People often reveal more than they realize.
+3. Small actions speak louder than big words.
+4. Trust is built slowly but breaks instantly.
+5. Every person has patterns they repeat.
+6. Silence is sometimes more revealing than speech.
+7. Reactions expose hidden emotions.
+8. Behavior changes when someone feels watched.
+9. Everyone hides something, knowingly or unknowingly.
+10. This page exists to remind me of that.
+`;
 
-  function showVisitors() {
-    if(!askPassword()) return;
-    fetch(`https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`)
-      .then(res => res.json())
-      .then(data => {
-        alert('Total visitors: ' + data.value);
-      })
-      .catch(() => alert('Could not load visitor count'));
-  }
-  const STORAGE_KEY = 'secretText';
+/* ================= SCRAMBLE ================= */
+function scrambleText(text) {
+  return text.split("").map(c => {
+    if (c === " " || c === "\n") return c;
+    return String.fromCharCode(c.charCodeAt(0) + Math.floor(Math.random() * 5) + 1);
+  }).join("");
+}
 
-  const DEFAULT_SECRET = `1. I know how silence changes when a truth is hidden, and how people laugh louder to cover it.
-2. Some secrets aren’t dramatic—they’re small habits, repeated until they feel invisible.
-3. I’ve seen how confidence is often rehearsed, not natural.
-4. There are messages left unread on purpose, and replies delayed for reasons no one admits.
-5. Everyone has a version of themselves they never show in photos.
-6. Trust is given quickly, but taken back slowly.
-7. Certain memories are avoided not because they hurt, but because they reveal too much.
-8. People remember details you think no one noticed.
-9. A secret doesn’t always involve wrongdoing—sometimes it’s just fear.
-10. The past isn’t forgotten; it’s edited.
-11. Apologies are planned before mistakes are made.
-12. Some promises are kept only because breaking them would expose more than intended.
-13. We all curate what others are allowed to know.
-14. There’s a difference between privacy and hiding.
-15. What’s unsaid often carries more weight than what’s spoken.
-16. Everyone has a line they hope is never crossed.
-17. The truth feels heavier when you’re the only one carrying it.
-18. People reveal themselves in patterns, not confessions.
-19. The smallest reactions are the hardest to fake.
-20. Secrets survive because they feel safer than honesty.
-21. No one is as unreadable as they think.
-22. The real story is usually in the details people skip.
-23. Some names trigger memories instantly.
-24. Time doesn’t erase secrets; it buries them.
-25. What you protect says more than what you share.
-26. Everyone assumes they’re harder to read than they actually are.
-27. Silence can be a strategy.
-28. The truth is often obvious once you stop denying it.
-29. Not all secrets are meant to be exposed.
-30. But every secret leaves a trace.`;
+function updateScramble() {
+  document.getElementById("secret").innerText = scrambleText(secretText);
+}
 
-  function loadSecret() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    document.getElementById('secret').innerText = saved || DEFAULT_SECRET;
-  }
+setInterval(updateScramble, 2500);
+updateScramble();
 
-  function saveSecret(text) {
-    localStorage.setItem(STORAGE_KEY, text);
-    loadSecret();
-  }
+/* ================= SETTINGS ================= */
+function askPassword() {
+  return prompt("Enter password:") === PASSWORD;
+}
 
-  loadSecret();
+function openSettings() {
+  if (!askPassword()) return;
+  document.getElementById("settingsPanel").style.display = "block";
+}
 
-  // Viewer-only scrambling
-  const languages = ['fr','es','de','it','ru','el','ja','ko'];
+function closeSettings() {
+  document.getElementById("settingsPanel").style.display = "none";
+}
 
-  function scramble(text) {
-    return text.split('').map(c => {
-      if (c === ' ' || c === '\n' || c === '.' || c === ',') return c;
-      const code = c.charCodeAt(0);
-      return String.fromCharCode(code + Math.floor(Math.random() * 6) + 1);
-    }).join('');
-  }
+/* ================= EDIT ================= */
+function editSecret() {
+  if (!askPassword()) return;
+  const newText = prompt("Edit secret text:", secretText);
+  if (newText !== null) secretText = newText;
+}
 
-  function showScrambled() {
-    const lang = languages[Math.floor(Math.random() * languages.length)];
-    const base = localStorage.getItem(STORAGE_KEY) || DEFAULT_SECRET;
-    document.getElementById('secret').innerText = scramble(base) + "\n\n[" + lang.toUpperCase() + "]";
-  }
+/* ================= TRANSLATE ================= */
+function translateSecret() {
+  if (!askPassword()) return;
+  alert(secretText);
+}
 
-  setInterval(showScrambled, 2500);
-  showScrambled();
+/* ================= VISITOR COUNTER ================= */
+function getDateKey(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split("T")[0];
+}
 
-  // Settings panel functions
-  function askPassword() {
-    const pass = prompt('Enter password');
-    if(pass !== PASSWORD) { alert('Wrong password'); return false; }
-    return true;
-  }
+const NS = "supraman-secret-web";
 
-  function openSettings() {
-    if(!askPassword()) return;
-    document.getElementById('settingsPanel').style.display = 'block';
-  }
+// increment today
+fetch(`https://countapi.xyz/hit/${NS}/${getDateKey()}`).catch(()=>{});
 
-  function closeSettings() {
-    document.getElementById('settingsPanel').style.display = 'none';
-  }
+function showVisitors() {
+  if (!askPassword()) return;
 
-  function editSecret() {
-    if(!askPassword()) return;
-    const newText = prompt('Edit secret text');
-    if(newText !== null) saveSecret(newText);
-  }
+  const today = getDateKey(0);
+  const yesterday = getDateKey(-1);
 
-  function translateSecret() {
-    if(!askPassword()) return;
-    alert('Translation (actual text):\n\n' + (localStorage.getItem(STORAGE_KEY) || DEFAULT_SECRET));
-  }
-
-  // Anti-copy protection
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('copy', e => e.preventDefault());
-  document.addEventListener('cut', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey && ['c','u','s','a'].includes(e.key.toLowerCase())) || e.key === 'F12') e.preventDefault();
+  Promise.all([
+    fetch(`https://countapi.xyz/get/${NS}/${today}`).then(r=>r.json()).catch(()=>({value:0})),
+    fetch(`https://countapi.xyz/get/${NS}/${yesterday}`).then(r=>r.json()).catch(()=>({value:0}))
+  ]).then(([t,y])=>{
+    alert(
+      `Visitor Stats:\n\n` +
+      `Today (${today}): ${t.value}\n` +
+      `Yesterday (${yesterday}): ${y.value}`
+    );
   });
-</script></body>
+}
+
+/* ================= BLOCK COPYING ================= */
+document.addEventListener("copy", e => e.preventDefault());
+document.addEventListener("contextmenu", e => e.preventDefault());
+</script>
+
+</body>
 </html>
